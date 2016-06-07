@@ -7,6 +7,7 @@ use std::fs::File;
 fn main() {
     loop {
         let mut input = String::new();
+        let mut stderr = io::stderr();
         match io::stdin().read_line(&mut input) {
             Ok(0) => {
                 break;
@@ -18,21 +19,19 @@ fn main() {
                     Ok(file) => file,
                 };
 
+                let mut bytesread = 0;
                 loop {
                     let mut buf = [0; 4096];
-                    match file.read(&mut buf) {
+                    bytesread = match file.read(&mut buf) {
                         Ok(0) => {
+                            writeln!(&mut stderr, "bytes read {}", bytesread).unwrap();
                             break;
                         }
                         Ok(n) => n,
                         Err(why) => panic!(why),
                     };
 
-
-                    match io::stdout().write_all(&buf) {
-                        Ok(_) => (),
-                        Err(why) => panic!(why),
-                    };
+                    io::stdout().write_all(&buf).unwrap();
 
                 }
             }
